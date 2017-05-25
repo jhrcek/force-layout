@@ -13,7 +13,7 @@ init : ( Model, Cmd Msg )
 init =
     let
         randomPointsGenerationCommand =
-            Random.generate InitRandomPositions <| randomPointsGenerator cube
+            Random.generate InitRandomPositions <| randomPointsGenerator hypercube
     in
         ( G.empty, randomPointsGenerationCommand )
 
@@ -22,7 +22,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg graph =
     case msg of
         InitRandomPositions randomPoints ->
-            ( makeGraph randomPoints cube, Cmd.none )
+            ( makeGraph randomPoints hypercube, Cmd.none )
 
         AnimationTick ->
             let
