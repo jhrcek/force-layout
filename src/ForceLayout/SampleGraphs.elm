@@ -1,4 +1,4 @@
-module ForceLayout.SampleGraphs exposing (..)
+module ForceLayout.SampleGraphs exposing (getEdges, getNodeIdGenerator, makeGraph)
 
 import ForceLayout.Types exposing (..)
 import Graph exposing (NodeId, fromNodeLabelsAndEdgePairs)
@@ -9,11 +9,25 @@ type alias Edges =
     List ( NodeId, NodeId )
 
 
-type PredefinedExample
-    = Tetrahedron
-    | Cube
-    | Circle Int
-    | Hypercube
+getEdges : PredefinedExample -> Edges
+getEdges example =
+    case example of
+        Tetrahedron ->
+            tetrahedron
+
+        Cube ->
+            cube
+
+        Circle nodes ->
+            circle nodes
+
+        Hypercube ->
+            hypercube
+
+
+getNodeIdGenerator : PredefinedExample -> Generator (List Point2D)
+getNodeIdGenerator =
+    randomPointsGenerator << getEdges
 
 
 makeGraph : List Point2D -> Edges -> LayoutGraph

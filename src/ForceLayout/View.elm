@@ -1,10 +1,10 @@
 module ForceLayout.View exposing (view)
 
 import ForceLayout.Types exposing (..)
-import Html exposing (div, text, Html, hr, button, input, label)
+import Html exposing (div, text, Html, hr, button, input, label, fieldset, legend)
 import Html.Attributes exposing (type_, value, min, max, step)
 import Html.Attributes as HA
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, onClick)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg as Svg
 import TypedSvg.Attributes exposing (viewBox, stroke)
@@ -14,19 +14,33 @@ import Color
 
 
 view : Model -> Html Msg
-view { graph, layoutSettings } =
+view { graph, layoutSettings, example } =
     div []
-        [ layoutSettingsControls layoutSettings
+        [ controls layoutSettings example
         , viewGraph graph
         ]
+
+
+controls : LayoutSettings -> PredefinedExample -> Html Msg
+controls layoutSettings example =
+    div [ HA.style [ ( "float", "left" ) ] ]
+        [ layoutSettingsControls layoutSettings
+        , exampleControls example
+        , randomizeButton
+        ]
+
+
+randomizeButton : Html Msg
+randomizeButton =
+    div [ HA.style [ ( "padding", "10px" ) ] ] [ button [ onClick Randomize ] [ text "Randomize" ] ]
 
 
 layoutSettingsControls : LayoutSettings -> Html Msg
 layoutSettingsControls settings =
     div [ HA.style [ ( "padding", "5px" ) ] ]
-        [ rangeSlider "charge" SetCharge 1000 100000 10 settings.charge
-        , rangeSlider "stiffness" SetStiffness 0.1 1 0.1 settings.stiffness
-        , rangeSlider "timeDiff" SetTimeDiff 0.01 0.5 0.01 settings.timeDiff
+        [ rangeSlider "Charge " SetCharge 1000 50000 100 settings.charge
+        , rangeSlider "Stiffness " SetStiffness 0.1 1 0.1 settings.stiffness
+        , rangeSlider "Speed " SetTimeDiff 0.001 0.3 0.001 settings.timeDiff
         ]
 
 
@@ -46,6 +60,31 @@ rangeSlider lbl tagger minVal maxVal stepVal val =
                 []
             , text <| toString val
             ]
+        ]
+
+
+exampleControls : PredefinedExample -> Html Msg
+exampleControls example =
+    fieldset [ HA.style [ ( "display", "inline-block" ) ] ]
+        [ legend [] [ text "Examples" ]
+        , radio example "tetrahedron" Tetrahedron
+        , radio example "cube" Cube
+        , radio example "circle" (Circle 5)
+        , radio example "hypercube" Hypercube
+        ]
+
+
+radio : PredefinedExample -> String -> PredefinedExample -> Html Msg
+radio currExample value exampleSelectableByRadio =
+    div []
+        [ input
+            [ type_ "radio"
+            , HA.name "font-size"
+            , onClick <| SelectExample exampleSelectableByRadio
+            , HA.checked (currExample == exampleSelectableByRadio)
+            ]
+            []
+        , text value
         ]
 
 

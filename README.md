@@ -6,7 +6,7 @@ Note this implementation is still experimental.
 ## TODOs
 
 - [x] Add possibility to tweak layout algorithm parameters in UI
-- [ ] Add sample graphs
+- [x] Add sample graphs
 - [ ] Make Physics simulation code more readable
 - [ ] linear-algebra should not be needed - implement the primitives in separate module
 - [ ] Implement random graph (tree?) generation

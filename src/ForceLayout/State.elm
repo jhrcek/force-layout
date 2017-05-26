@@ -11,18 +11,19 @@ import Time exposing (Time, millisecond)
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        randomPointsGenerationCommand =
-            Random.generate InitRandomPositions <| randomPointsGenerator hypercube
-    in
-        ( { graph = G.empty, layoutSettings = defaultLayoutSettings }, randomPointsGenerationCommand )
+    ( { graph = G.empty
+      , layoutSettings = defaultLayoutSettings
+      , example = Cube
+      }
+    , newGraphInitCommand Cube
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ graph, layoutSettings } as model) =
+update msg ({ graph, layoutSettings, example } as model) =
     case msg of
         InitRandomPositions randomPoints ->
-            ( { model | graph = makeGraph randomPoints hypercube }, Cmd.none )
+            ( { model | graph = makeGraph randomPoints <| getEdges example }, Cmd.none )
 
         AnimationTick ->
             let
@@ -51,6 +52,17 @@ update msg ({ graph, layoutSettings } as model) =
                     { layoutSettings | timeDiff = parseFloat newDiff }
             in
                 ( { model | layoutSettings = newSettings }, Cmd.none )
+
+        Randomize ->
+            ( model, newGraphInitCommand example )
+
+        SelectExample ex ->
+            ( { model | example = ex }, newGraphInitCommand ex )
+
+
+newGraphInitCommand : PredefinedExample -> Cmd Msg
+newGraphInitCommand example =
+    Random.generate InitRandomPositions <| getNodeIdGenerator example
 
 
 parseFloat : String -> Float

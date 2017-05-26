@@ -6,6 +6,7 @@ module ForceLayout.Types
         , Point2D(Point2D)
         , PositionedNode
         , LayoutSettings
+        , PredefinedExample(..)
         , canvasWidth
         , canvasHeight
         , getCoords
@@ -20,6 +21,7 @@ import Graph as G
 type alias Model =
     { graph : LayoutGraph
     , layoutSettings : LayoutSettings
+    , example : PredefinedExample
     }
 
 
@@ -29,6 +31,8 @@ type Msg
     | SetCharge String
     | SetStiffness String
     | SetTimeDiff String
+    | SelectExample PredefinedExample
+    | Randomize
 
 
 type alias LayoutGraph =
@@ -50,9 +54,16 @@ type alias LayoutSettings =
     }
 
 
+type PredefinedExample
+    = Tetrahedron
+    | Cube
+    | Circle Int
+    | Hypercube
+
+
 defaultLayoutSettings : LayoutSettings
 defaultLayoutSettings =
-    { charge = 10000, stiffness = 0.5, timeDiff = 0.01 }
+    { charge = 10000, stiffness = 0.5, timeDiff = 0.02 }
 
 
 getCoords : LayoutGraph -> NodeId -> Point2D
@@ -81,4 +92,4 @@ canvasWidth =
 
 canvasHeight : Float
 canvasHeight =
-    720
+    960
