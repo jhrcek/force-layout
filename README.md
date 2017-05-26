@@ -5,9 +5,10 @@ Note this implementation is still experimental.
 
 ## TODOs
 
+- [x] Add possibility to tweak layout algorithm parameters in UI
 - [ ] Add sample graphs
 - [ ] Make Physics simulation code more readable
 - [ ] linear-algebra should not be needed - implement the primitives in separate module
 - [ ] Implement random graph (tree?) generation
-- [ ] Add possibility to tweak layout algorithm parameters in UI
 - [ ] Add node drag & drop
+- [ ] Make svg canvas full screen and react to window resizing

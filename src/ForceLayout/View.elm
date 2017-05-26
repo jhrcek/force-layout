@@ -1,7 +1,10 @@
 module ForceLayout.View exposing (view)
 
 import ForceLayout.Types exposing (..)
-import Html exposing (div, text, Html, hr, button)
+import Html exposing (div, text, Html, hr, button, input, label)
+import Html.Attributes exposing (type_, value, min, max, step)
+import Html.Attributes as HA
+import Html.Events exposing (onInput)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg as Svg
 import TypedSvg.Attributes exposing (viewBox, stroke)
@@ -11,9 +14,38 @@ import Color
 
 
 view : Model -> Html Msg
-view graph =
+view { graph, layoutSettings } =
     div []
-        [ viewGraph graph
+        [ layoutSettingsControls layoutSettings
+        , viewGraph graph
+        ]
+
+
+layoutSettingsControls : LayoutSettings -> Html Msg
+layoutSettingsControls settings =
+    div [ HA.style [ ( "padding", "5px" ) ] ]
+        [ rangeSlider "charge" SetCharge 1000 100000 10 settings.charge
+        , rangeSlider "stiffness" SetStiffness 0.1 1 0.1 settings.stiffness
+        , rangeSlider "timeDiff" SetTimeDiff 0.01 0.5 0.01 settings.timeDiff
+        ]
+
+
+rangeSlider : String -> (String -> Msg) -> Float -> Float -> Float -> Float -> Html Msg
+rangeSlider lbl tagger minVal maxVal stepVal val =
+    div []
+        [ label []
+            [ text lbl
+            , input
+                [ type_ "range"
+                , HA.min <| toString minVal
+                , HA.max <| toString maxVal
+                , step <| toString stepVal
+                , value <| toString val
+                , onInput tagger
+                ]
+                []
+            , text <| toString val
+            ]
         ]
 
 

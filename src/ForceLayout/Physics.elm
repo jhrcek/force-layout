@@ -1,29 +1,29 @@
-module ForceLayout.Physics exposing (..)
+module ForceLayout.Physics exposing (updatePositions)
 
 import ForceLayout.Types exposing (..)
 import Math.Vector2 as V
 import Graph as G
 
 
-updatePositions : Float -> LayoutGraph -> LayoutGraph
-updatePositions deltaTime graph =
+updatePositions : LayoutSettings -> LayoutGraph -> LayoutGraph
+updatePositions settings graph =
     G.mapContexts
         (\ctx ->
             let
                 { node } =
                     ctx
             in
-                { ctx | node = updatePosition deltaTime node graph }
+                { ctx | node = updatePosition settings node graph }
         )
         graph
 
 
 updatePosition :
-    Float -- Time since the last update
+    LayoutSettings
     -> PositionedNode -- Vertex we are analysing
     -> LayoutGraph
     -> PositionedNode -- New position
-updatePosition deltaTime node graph =
+updatePosition { charge, stiffness, timeDiff } node graph =
     let
         { id, label } =
             node
@@ -33,7 +33,7 @@ updatePosition deltaTime node graph =
 
         -- Gets a velocity by multiplying the time by the force (we take the mass to be 1).
         getVel force otherNode =
-            V.scale deltaTime <| force nodeCoords otherNode
+            V.scale timeDiff <| force nodeCoords otherNode
 
         -- Sum all the pushing and pulling.  All vertices push, the connected vertices pull.
         pushVector =
@@ -43,14 +43,14 @@ updatePosition deltaTime node graph =
                         otherNode =
                             ctxToPoint ctx
                     in
-                        V.add (getVel pushForce otherNode) acc
+                        V.add (getVel (pushForce charge) otherNode) acc
                 )
                 zeroV2
                 graph
 
         pullVector =
             neighborPoints graph id
-                |> List.foldr (\otherNode acc -> V.add (getVel pullForce otherNode) acc) zeroV2
+                |> List.foldr (\otherNode acc -> V.add (getVel (pullForce stiffness) otherNode) acc) zeroV2
 
         (Point2D x y) =
             nodeCoords
@@ -68,21 +68,17 @@ neighborPoints graph nid =
         |> Maybe.withDefault []
 
 
-charge : Float
-charge =
-    10000
-
-
 p2v : Point2D -> V.Vec2
 p2v (Point2D x y) =
     V.vec2 x y
 
 
 pushForce :
-    Point2D -- Vertex we're calculating the force for
+    Float
+    -> Point2D -- Vertex we're calculating the force for
     -> Point2D -- Vertex pushing the other away
     -> V.Vec2
-pushForce p1 p2 =
+pushForce charge p1 p2 =
     let
         v1 =
             p2v p1
@@ -103,13 +99,8 @@ pushForce p1 p2 =
             zeroV2
 
 
-stiffness : Float
-stiffness =
-    0.5
-
-
-pullForce : Point2D -> Point2D -> V.Vec2
-pullForce p1 p2 =
+pullForce : Float -> Point2D -> Point2D -> V.Vec2
+pullForce stiffness p1 p2 =
     let
         v1 =
             p2v p1
