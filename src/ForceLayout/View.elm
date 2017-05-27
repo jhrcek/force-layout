@@ -4,13 +4,14 @@ import ForceLayout.Types exposing (..)
 import Html exposing (div, text, Html, hr, button, input, label, fieldset, legend)
 import Html.Attributes exposing (type_, value, min, max, step)
 import Html.Attributes as HA
-import Html.Events exposing (onInput, onClick)
+import Html.Events exposing (onInput, onClick, onMouseUp)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg as Svg
 import TypedSvg.Attributes exposing (viewBox, stroke)
 import TypedSvg.Attributes.InPx as A
 import Graph as G
 import Color
+import Draggable
 
 
 view : Model -> Html Msg
@@ -88,7 +89,7 @@ radio currExample value exampleSelectableByRadio =
         ]
 
 
-viewGraph : LayoutGraph -> Html msg
+viewGraph : LayoutGraph -> Html Msg
 viewGraph graph =
     Svg.svg [ A.width canvasWidth, A.height canvasHeight, viewBox 0 0 canvasWidth canvasHeight ] <|
         viewEdges graph
@@ -100,7 +101,7 @@ viewEdges graph =
     List.map (\edge -> viewEdge graph edge) <| G.edges graph
 
 
-viewNodes : List PositionedNode -> List (Svg msg)
+viewNodes : List PositionedNode -> List (Svg Msg)
 viewNodes nodes =
     List.map viewNode nodes
 
@@ -117,10 +118,17 @@ viewEdge gr ({ from, to } as edge) =
         Svg.line [ A.x1 fromX, A.y1 fromY, A.x2 toX, A.y2 toY, A.strokeWidth 1, stroke Color.black ] []
 
 
-viewNode : PositionedNode -> Svg msg
-viewNode { label } =
+viewNode : PositionedNode -> Svg Msg
+viewNode { id, label } =
     let
         (Point2D x y) =
             label
     in
-        Svg.circle [ A.cx x, A.cy y, A.r 10 ] []
+        Svg.circle
+            [ A.cx x
+            , A.cy y
+            , A.r 10
+            , Draggable.mouseTrigger id DragMsg
+            , onMouseUp NodeDragEnd
+            ]
+            []

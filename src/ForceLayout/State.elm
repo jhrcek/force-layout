@@ -1,18 +1,22 @@
 module ForceLayout.State exposing (init, update, subscriptions)
 
+import ForceLayout.DragDrop exposing (..)
 import ForceLayout.Physics exposing (..)
 import ForceLayout.Types exposing (..)
 import ForceLayout.SampleGraphs exposing (..)
-import Random
+import Draggable
 import Graph exposing (NodeId)
 import Graph as G
+import Random
 import Time exposing (Time, millisecond)
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { graph = G.empty
+      , draggedNode = Nothing
       , layoutSettings = defaultLayoutSettings
+      , drag = Draggable.init
       , example = Cube
       }
     , newGraphInitCommand Cube
@@ -59,6 +63,18 @@ update msg ({ graph, layoutSettings, example } as model) =
         SelectExample ex ->
             ( { model | example = ex }, newGraphInitCommand ex )
 
+        NodeDragStart nid ->
+            ( startDragging nid model, Cmd.none )
+
+        NodeDraggedBy delta ->
+            ( dragNode model delta, Cmd.none )
+
+        NodeDragEnd ->
+            ( stopDragging model, Cmd.none )
+
+        DragMsg dragMsg ->
+            Draggable.update dragConfig dragMsg model
+
 
 newGraphInitCommand : PredefinedExample -> Cmd Msg
 newGraphInitCommand example =
@@ -71,5 +87,8 @@ parseFloat =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Time.every (25 * millisecond) (\_ -> AnimationTick)
+subscriptions { drag } =
+    Sub.batch
+        [ Time.every (25 * millisecond) (\_ -> AnimationTick)
+        , Draggable.subscriptions DragMsg drag
+        ]
