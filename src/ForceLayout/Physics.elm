@@ -7,53 +7,46 @@ import Graph as G
 
 updatePositions : LayoutSettings -> LayoutGraph -> LayoutGraph
 updatePositions settings graph =
-    G.mapContexts
-        (\ctx ->
-            let
-                { node } =
-                    ctx
-            in
-                { ctx | node = updatePosition settings node graph }
-        )
-        graph
+    G.mapContexts (mapNodeInContext (updatePosition settings graph)) graph
 
 
 updatePosition :
     LayoutSettings
-    -> PositionedNode -- Vertex we are analysing
     -> LayoutGraph
+    -> PositionedNode -- Vertex we are analysing
     -> PositionedNode -- New position
-updatePosition { charge, stiffness, timeDiff } node graph =
+updatePosition { charge, stiffness, timeDiff } graph node =
     let
-        { id, label } =
-            node
+        nodeId =
+            node.id
 
-        nodeCoords =
-            label
+        nodePosition =
+            node.label
+
+        (Point2D x y) =
+            nodePosition
 
         -- Gets a velocity by multiplying the time by the force (we take the mass to be 1).
-        getVel force otherNode =
-            V.scale timeDiff <| force nodeCoords otherNode
+        getVel force otherNodePosition =
+            V.scale timeDiff <| force nodePosition otherNodePosition
 
-        -- Sum all the pushing and pulling.  All vertices push, the connected vertices pull.
+        -- Sum of repulsive forces from All nodes
         pushVector =
             G.fold
                 (\ctx acc ->
                     let
-                        otherNode =
+                        otherNodePosition =
                             ctxToPoint ctx
                     in
-                        V.add (getVel (pushForce charge) otherNode) acc
+                        V.add (getVel (pushForce charge) otherNodePosition) acc
                 )
                 zeroV2
                 graph
 
+        -- Sum attractive forces from Connected node
         pullVector =
-            neighborPoints graph id
+            neighborPoints graph nodeId
                 |> List.foldr (\otherNode acc -> V.add (getVel (pullForce stiffness) otherNode) acc) zeroV2
-
-        (Point2D x y) =
-            nodeCoords
 
         newPosition =
             Point2D (x + V.getX pushVector + V.getX pullVector) (y + V.getY pushVector + V.getY pullVector)

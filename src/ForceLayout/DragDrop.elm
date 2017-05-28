@@ -32,7 +32,7 @@ dragNode model delta =
 
 updatePositionInContext : Delta -> Maybe (G.NodeContext Point2D e) -> Maybe (G.NodeContext Point2D e)
 updatePositionInContext delta =
-    Maybe.map (mapNodeCtx (updatePosition delta))
+    Maybe.map <| mapNodeLabelInCtx (updatePosition delta)
 
 
 updatePosition : Delta -> Point2D -> Point2D

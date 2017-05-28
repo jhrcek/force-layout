@@ -11,7 +11,8 @@ module ForceLayout.Types
         , canvasHeight
         , getCoords
         , ctxToPoint
-        , mapNodeCtx
+        , mapNodeLabelInCtx
+        , mapNodeInContext
         , defaultLayoutSettings
         )
 
@@ -86,16 +87,6 @@ getCoords graph nid =
             ctxToPoint ctx
 
 
-mapNodeCtx : (a -> b) -> NodeContext a e -> NodeContext b e
-mapNodeCtx f ctx =
-    { ctx | node = mapNode f ctx.node }
-
-
-mapNode : (a -> b) -> Node a -> Node b
-mapNode f node =
-    { node | label = f node.label }
-
-
 ctxToPoint : NodeContext Point2D () -> Point2D
 ctxToPoint { node } =
     let
@@ -113,3 +104,22 @@ canvasWidth =
 canvasHeight : Float
 canvasHeight =
     960
+
+
+
+-- Stuff missing in Graph library
+
+
+mapNodeLabelInCtx : (a -> b) -> NodeContext a e -> NodeContext b e
+mapNodeLabelInCtx f ctx =
+    { ctx | node = mapLabelInNode f ctx.node }
+
+
+mapLabelInNode : (a -> b) -> Node a -> Node b
+mapLabelInNode f node =
+    { node | label = f node.label }
+
+
+mapNodeInContext : (Node a -> Node b) -> NodeContext a e -> NodeContext b e
+mapNodeInContext f ctx =
+    { ctx | node = f ctx.node }
