@@ -8,7 +8,7 @@ import Draggable
 import Graph exposing (NodeId)
 import Graph as G
 import Random
-import Time exposing (Time, millisecond)
+import AnimationFrame
 
 
 init : ( Model, Cmd Msg )
@@ -89,6 +89,6 @@ parseFloat =
 subscriptions : Model -> Sub Msg
 subscriptions { drag } =
     Sub.batch
-        [ Time.every (25 * millisecond) (\_ -> AnimationTick)
+        [ AnimationFrame.diffs (\_ -> AnimationTick)
         , Draggable.subscriptions DragMsg drag
         ]
