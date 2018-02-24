@@ -1,12 +1,11 @@
 # Force directed graph layout in Elm
 Implementation of [force directed layout algorithm](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) in [Elm](http://elm-lang.org/).
 
-
 The aim of force directed graph drawing algorithms is to produce aesthetically
 pleasing layout of graphs by simulating attractive / repulsive forces among
 nodes of the graph.
 
-## See it in action [here](http://janhrcek.cz/elm-graph-layout.html)
+## See it in action [here](http://janhrcek.cz/graph-layout-experiment/)
 Things you can try:
 - Several example graphs
 - Move nodes using drag and drop
